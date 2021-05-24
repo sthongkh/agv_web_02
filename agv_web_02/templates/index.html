@@ -1,0 +1,15 @@
+{% extends 'main.html' %}
+
+{% block body %}
+<div class="text-center mt-4">
+    <h4>Workshop: ระบบสมาชิก</h4>
+    <br>
+    <a href="{% url 'member_signin' %}">
+        เข้าสู่ระบบ
+    </a>
+    <br><br>
+    <a href="{% url 'member_signup' %}">
+        สมัครสมาชิกใหม่
+    </a>
+</div>
+{% endblock %}
