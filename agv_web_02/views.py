@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse
 from database.models import Member, MemberForm
-from .forms import SigninForm
+from .forms import *
 from django.db.models import Q
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.template import loader
+from .mongodb import MongoDB
 
 
 def index(request):
@@ -59,6 +60,7 @@ def member_signup(request):
     #ซึ่งเราต้องส่งพาธที่ใช้คู่กับฟังก์ชันนี้ไปยังเท็มเพลต
     #เพื่อกำหนดให้แก่แอตทริบิวต์ action ของฟอร์ม 
     return render(request, 'member-signup.html', {'form':form, 'action':action, 'err_msg':err_msg})
+
 
 
 #ต้องใช้ csrf_exampt เพราะเราจะใช้คุกกี้ 
@@ -129,20 +131,20 @@ def member_home(request):
     #ถ้ายังไม่มีค่า id ในเซสชัน แสดงว่ายังไม่เข้าสู่ระบบ
     #ก็ให้ย้ายไปที่เพจ การเข้าสู่ระบบ
     if 'id' not in request.session:
-        return redirect(reverse('member_signin'))
+        return redirect(reverse('member_login'))
     
     id = request.session['id']
     name = request.session['name']
 
+    #return render(request, 'member-home.html', {'id':id, 'name':name})
     return render(request, 'member-home.html', {'id':id, 'name':name})
-
 
 def member_signout(request):
     if 'id' in request.session:
         del request.session['id']
         del request.session['name']
         
-    return redirect(reverse('member_signin'))
+    return redirect(reverse('member_login'))
 
 
 def member_resign(request):
@@ -195,3 +197,76 @@ def member_update(request):
         err_msg = ''
 
         return render(request, 'member-signup.html', {'form': form, 'action':action, 'err_msg':err_msg})
+
+@csrf_exempt
+def member_login(request):
+    #ถ้าในขณะนั้นได้เข้าสู่ระบบแล้ว 
+    #ก็ไปยังเพจหลักของสมาชิกได้ทันที
+    if 'id' in request.session:
+        return redirect(reverse('member_home'))
+
+    #ถ้าโพสต์ข้อมูลเข้ามา 
+    err_msg = None
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        user = request.POST.get('user', '')
+        password = request.POST.get('password', '')
+        save = request.POST.get('save', False)
+
+        #นำอีเมลและรหัสผ่านไปตรวจสอบว่ามีในฐานข้อมูลหรือไม่
+        #ถ้ามี ก็เก็บค่า id และชื่อไว้ในเซสชัน เพื่อบ่งชี้ว่า เข้าสู่ระบบแล้ว
+    
+        row = Member.objects.filter(
+                Q(user=user) & Q(password=password))
+
+   
+
+        id = MongoDB().match_user(user, password)
+
+
+        if id != False:
+            request.session['id'] = id
+            request.session['name'] = user
+
+            #สร้างออบเจ็กต์ HttpResponse เพื่อส่งข้อมูลกลับไปและจัดการคุกกี้
+            tmp = loader.get_template('member-home.html')
+            data = {'name':user}
+            response = HttpResponse(tmp.render(data))
+
+            #ถ้าเลือกบันทึกข้อมูลไว้ในเครื่อง ก็จัดเก็บในแบบคุกกี้ โดยกำหนดอายุ 1 วัน
+            #แต่ถ้าไม่เลือก ก็ให้ลบออกจากคุกกี้ (เผื่อจะเก็บไว้ก่อนแล้ว)
+            if save:
+                age = 60*60*24
+                response.set_cookie('user', value=user, max_age=age)
+                response.set_cookie('password', value=password, max_age=age)
+                response.set_cookie('save', value=save, max_age=age)
+            else:
+                response.delete_cookie('user')
+                response.delete_cookie('password')
+                response.delete_cookie('save')
+
+            return response
+            
+        else:
+            err_msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง'
+
+    #ถ้าเปิดเพจ และมีข้อมูลจัดเก็บในแบบคุกกี้เอาไว้แล้ว
+    #ให้อ่านค่า จากนั้นนำไปเติมเป็นค่าล่วงหน้าให้แก่ฟอร์ม
+    elif 'user' in request.COOKIES:
+        user = request.COOKIES.get('user', '')
+        password = request.COOKIES.get('password', '')
+        save = request.COOKIES.get('save', False)
+        form = LoginForm(
+            initial={'user':user, 'password':password, 'save':save}
+        )
+
+    else:
+        form = LoginForm()
+    
+    return render(request, 'member-login.html', {'form':form, 'err_msg':err_msg})
+
+@csrf_exempt
+def add_queue(request):
+    err_msg = None
+    form = AddQueueForm()
+    return render(request, 'add-queue.html', {'form':form, 'err_msg':err_msg})

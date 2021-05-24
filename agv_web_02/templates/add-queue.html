@@ -1,0 +1,32 @@
+{% extends 'main.html' %}
+{% load crispy_forms_tags %}
+
+{% block style %}
+    <style>
+        form {
+            max-width: 300px;
+            margin: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <form method="post">
+        <br>
+        <h5 class="text-center">โปรดกรอกข้อมูลการจัดส่ง</h5>
+        <br>
+        {% if err_msg != None %}
+            <div class="text-danger text-center">{{ err_msg }}</div><br>
+        {% endif %}
+
+        {# csrf_token #}
+        
+        {{ form|crispy }}
+        <br>
+        <p class="text-center">
+            <button class="btn btn-primary">ตกลง</button><br><br>
+            <a href="/">หน้าแรก</a>
+        </p>
+    </form>
+    <br>
+{% endblock %}

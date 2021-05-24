@@ -14,11 +14,13 @@
     <h4>สวัสดี {{ name }}</h4>
     <h5>คุณเข้าสู่ระบบแล้ว</h5>
     <br>
-    <a href=# class="btn btn-info">Menu 1</a><br>
-    <a href=# class="btn btn-success">Menu 2</a><br>
+    <a href=# class="btn btn-success">เพิ่มคิวส่งชิ้นงาน</a><br>
+    <a href=# class="btn btn-danger">ลบคิวส่งชิ้นงาน</a><br>
+    <!--
     <a href="{% url 'member_update' %}" class="btn btn-primary">แก้ไขข้อมูลสมาชิก</a><br>
     <a href="javascript:resign()" class="btn btn-danger">ยกเลิกการเป็นสมาชิก</a><br>
-    <a href="{% url 'member_signout' %}" class="btn btn-warning">ออกจากระบบ</a><br>
+    -->
+    <a href="{% url 'member_signout' %}" class="btn btn-info">ออกจากระบบ</a><br>
 </div>
 <script>
 function resign() {

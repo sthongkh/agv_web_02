@@ -27,4 +27,6 @@ urlpatterns = [
     path('member/signout/', views.member_signout, name='member_signout'),
     path('member/resign/', views.member_resign, name='member_resign'),
     path('member/update/', views.member_update, name='member_update'),
+    path('member/login/', views.member_login, name='member_login'),
+    path('add/', views.add_queue, name='add_queue'),
 ]

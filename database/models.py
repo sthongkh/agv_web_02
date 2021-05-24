@@ -6,6 +6,7 @@ from django import forms
 class Member(models.Model):
     firstname = models.CharField(max_length=30)
     lastname = models.CharField(max_length=30)
+    user = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=20)
 
@@ -26,5 +27,3 @@ class MemberForm(forms.ModelForm):
         widgets = {
             'password': forms.PasswordInput(render_value=True)
         }
-
-    
