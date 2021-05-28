@@ -28,7 +28,7 @@ DEBUG = True
 
 hostname = socket.gethostname()
 local_ip = socket.gethostbyname(hostname)
-ALLOWED_HOSTS = [local_ip]
+ALLOWED_HOSTS = [local_ip, 'planagv']
 
 
 
