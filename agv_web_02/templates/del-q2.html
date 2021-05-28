@@ -1,0 +1,39 @@
+{% extends 'main.html' %}
+
+{% block body %}  
+    <br>
+
+    <table class="table table-striped table-bordered table-sm">
+    <thead class="thead-dark">        
+        <tr>
+            <th></th>
+            <th>หมายเลขงาน</th>
+            <th>จำนวน</th>
+            <th>ส่งจากสถานี</th>
+            <th>ไปยังสถานี</th>
+            <th>โดยผู้ใช้</th>
+        </tr>
+    </thead>
+    {% for r in data %}
+        <tr>
+            <td>
+                <a href="javascript:del('{% url 'del_2' %}')">ลบ</a>
+                <script>
+                    function del(url) {
+                        if (confirm('ยืนยันการลบ')) {
+                            document.location = url;
+
+                        }
+                    }
+                </script>
+            </td>
+            <td>{{ r.job }}</td>
+            <td>{{ r.quantity }}</td>
+            <td>{{ r.from }}</td>
+            <td>{{ r.to }}</td>
+            <td>{{ r.user }}</td>              
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endblock %}

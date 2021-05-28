@@ -23,32 +23,34 @@ class MongoDB():
         if res != None:
             res_pw = res["password"]
             if pw == res_pw:
-                return str(res["_id"])
+                return str(res["_id"]), res["plant"]
                 
-            return False
+            return False, 0
 
         else:
-            return False
+            return False, 0
 
 
     def get_all_station(self, plant):
         col = self.mydb["station"]
         query = {"plant" : plant}
         res = col.find(query)
-        resp = ()
         sid = []
         sname = []
         for x in res:
             sid.append(x["station_id"])
             sname.append(x["station_name"])
-            tup = (x["station_id"], x["station_name"])
-            resp += (tup)
 
-        return resp
+        return sid, sname
 
-    def get_queue_agv(self, agv_num):
+    def get_queue_agv(self, agv_num, user=None):
         col = self.mydb["queue_agv_{}".format(agv_num)]
-        query = {}
+        if user != None:
+            query = {"user" : user}
+
+        else:
+            query = {}
+
         res = col.find(query)
         data = []
 
@@ -66,6 +68,35 @@ class MongoDB():
                 ret.append("{:02d}".format(int(match.group(1))))
 
         return ret
+
+    def add_queue(self, agv_num, data_dict):
+        col = self.mydb["queue_agv_{}".format(agv_num)]
+        ret = col.insert_one(data_dict)
+        return (False, True)[ret != None]
+
+    def del_queue(self, agv_num, index):
+        col = self.mydb["queue_agv_{}".format(agv_num)]
+        query = { "_id":  index}
+        ret = col.delete_one(query)
+        return (False, True)[ret != None]
+
+    def get_mapping_agv(self, plant_num):
+        col = self.mydb["mapping_agv"]
+        query = {}
+        res = col.find_one(query)
+        res = res["plant{}".format(plant_num)]
+        return res
+
+    def get_queue_number_max_agv(self, agv_num):
+        col = self.mydb["queue_agv_{}".format(agv_num)]
+        query = {}
+        res = col.find(query)
+        data = [0]
+        for i in res:
+            data.append(i["queue"])
+
+        return max(data)
+
 
     def test(self, text):
         print(text)

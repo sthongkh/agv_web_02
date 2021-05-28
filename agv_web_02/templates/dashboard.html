@@ -1,0 +1,21 @@
+{% extends 'main.html' %}
+
+{% block style %}
+    <style>
+        a.btn {
+            width: 200px;
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="text-center">
+    <h4>สวัสดี {{ name }}</h4>
+    <h5>คุณเข้าสู่ระบบแล้ว</h5>
+    <br>
+    <a href="{% url 'add_queue' %}" class="btn btn-success">เพิ่มคิวส่งชิ้นงาน</a><br>
+    <a href="{% url 'del_queue' %}" class="btn btn-danger">ลบคิวส่งชิ้นงาน</a><br>
+    <a href="{% url 'member_signout' %}" class="btn btn-info">ออกจากระบบ</a><br>
+</div>
+{% endblock %}
